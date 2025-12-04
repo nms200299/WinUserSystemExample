@@ -74,7 +74,7 @@ int wmain(int argc, wchar_t* argv[]){
 
 	wchar_t* DllPath = argv[1];
 	DWORD PID = (DWORD)_wtol(argv[2]);
-	// TCHAR을 정수로 변환
+	// 문자열을 정수로 변환
 
 	if (InjectDll(DllPath, PID) == 0) wprintf(L"\t[*] DLL Injection Success !\n");
 	else wprintf(L"\t[*] DLL Injection Fail !\n");
