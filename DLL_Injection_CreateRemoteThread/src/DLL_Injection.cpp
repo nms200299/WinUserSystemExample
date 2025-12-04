@@ -1,36 +1,36 @@
 ﻿#include <tchar.h>
 #include <windows.h>
 
-int InjectDll(TCHAR* pszDllPath, DWORD dwPID) {
+int InjectDll(wchar_t* pszDllPath, DWORD dwPID) {
 	HANDLE hProcess;
 	if (!(hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPID))) {
 	// 최대 권한, 상속 없음으로 프로세스 핸들을 발급받는다.
-		_tprintf(L"\t[-] OpenProcess() Fail !\n");
+		wprintf(L"\t[-] OpenProcess() Fail !\n");
 		return -1;
 	}
-	_tprintf(L"\t[+] OpenProcess() Success !\n");
+	wprintf(L"\t[+] OpenProcess() Success !\n");
 
-	size_t dwDllPathSize = (size_t)((_tcslen(pszDllPath)+1)*sizeof(TCHAR));
+	size_t dwDllPathSize = (size_t)((wcslen(pszDllPath)+1)*sizeof(wchar_t));
 	// NULL-Terminate가 고려된 DLL 경로 길이를 구한다.
 	LPVOID pThreadParam;
 	if (!(pThreadParam = VirtualAllocEx(hProcess, NULL, dwDllPathSize, MEM_COMMIT, PAGE_READWRITE))) {
 		// 인젝션할 프로세스에 위 길이만큼 가상 메모리 공간을 할당한다.
 		// (생성할 스레드에서 접근할 수 있는 메모리 공간이 필요하기에)
-		_tprintf(L"\t[-] VirtualAllocEx() Fail !\n");
+		wprintf(L"\t[-] VirtualAllocEx() Fail !\n");
 		return -2;
 	}
-	_tprintf(L"\t[+] VirtualAllocEx() Success !\n");
+	wprintf(L"\t[+] VirtualAllocEx() Success !\n");
 
 	if (!(WriteProcessMemory(hProcess, pThreadParam, (LPCVOID)pszDllPath, dwDllPathSize, NULL))) {
 		// 위 가상 메모리 공간에 DLL 경로를 대입한다.
-		_tprintf(L"\t[-] WriteProcessMemory() Fail !\n");
+		wprintf(L"\t[-] WriteProcessMemory() Fail !\n");
 		return -3;
 	}
-	_tprintf(L"\t[+] WriteProcessMemory() Success !\n");
+	wprintf(L"\t[+] WriteProcessMemory() Success !\n");
 
 	HMODULE hMod;
 	if (!(hMod = GetModuleHandle(L"kernel32.dll"))) {
-		_tprintf(L"\t[-] GetModuleHandle() Fail !\n");
+		wprintf(L"\t[-] GetModuleHandle() Fail !\n");
 		return -4;
 	} // kernel32.dll 모듈의 핸들을 구합니다.
 	// (모든 일반 프로세스는 kernel32.dll을 로드한다)
@@ -39,13 +39,13 @@ int InjectDll(TCHAR* pszDllPath, DWORD dwPID) {
 	if (!(pThreadProc = (LPTHREAD_START_ROUTINE)GetProcAddress(hMod, "LoadLibraryW"))) {
 		// kernel32.dll에 존재하는 LoadLibraryW() API 주소를 구합니다.
 		// (시스템이 살아 있는 동안 같은 프로세스마다 같은 주소에 DLL이 매핑되는 점을 이용)
-		_tprintf(L"\t[-] GetProcAddress() Fail !\n");
+		wprintf(L"\t[-] GetProcAddress() Fail !\n");
 		return -5;
 	}
 
 	HANDLE hThread;
 	if (!(hThread = CreateRemoteThread(hProcess, NULL, 0, pThreadProc, pThreadParam, 0, NULL))) {
-		_tprintf(L"\t[-] CreateRemoteThread() Fail !\n");
+		wprintf(L"\t[-] CreateRemoteThread() Fail !\n");
 		return -6;
 	} // LoadLibraryW() API로 DLL을 로드하는 원격 스레드를 생성합니다.
 
@@ -62,22 +62,22 @@ int InjectDll(TCHAR* pszDllPath, DWORD dwPID) {
 
 
 void usage() {
-	_tprintf(L"usage : Injector.exe [DLL PATH] [PID]\n");
+	wprintf(L"usage : Injector.exe [DLL PATH] [PID]\n");
 	system("pause");
 	exit(1);
 }
 
-int _tmain(int argc, TCHAR* argv[]){
-	_tprintf(L"[DLL Injection (CreateRemoteThread) Example]\n");
+int wmain(int argc, wchar_t* argv[]){
+	wprintf(L"[DLL Injection (CreateRemoteThread) Example]\n");
 
 	if (argc != 3) usage();
 
-	TCHAR* DllPath = argv[1];
-	DWORD PID = (DWORD)_tstol(argv[2]);
+	wchar_t* DllPath = argv[1];
+	DWORD PID = (DWORD)_wtol(argv[2]);
 	// TCHAR을 정수로 변환
 
-	if (InjectDll(DllPath, PID) == 0) _tprintf(L"\t[*] DLL Injection Success !\n");
-	else _tprintf(L"\t[*] DLL Injection Fail !\n");
+	if (InjectDll(DllPath, PID) == 0) wprintf(L"\t[*] DLL Injection Success !\n");
+	else wprintf(L"\t[*] DLL Injection Fail !\n");
 
 	//system("pause");
 	return 0;
