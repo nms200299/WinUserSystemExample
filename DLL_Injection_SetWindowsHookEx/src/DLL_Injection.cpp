@@ -34,7 +34,7 @@ unsigned __stdcall InjectDll(void* param) {
 	wprintf(L"\t[+] GetProcAddress(SetLoadThreadInfo) Success !\n");
 	// 로드한 PID, TID를 공유할 함수 주소를 구합니다.
 	SetInfo((int)GetCurrentProcessId(), (int)GetCurrentThreadId());
-	// 인젝터 PID, 후킹 인젝터 TID를 넘깁니다.
+	// PID, TID를 DLL로 넘깁니다.
 
 	g_hHook = SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)procAddr, g_hDll, 0);
 	if (g_hHook == NULL) {
@@ -64,7 +64,7 @@ void usage() {
 }
 
 int wmain(int argc, wchar_t* argv[]){
-	wprintf(L"[Global DLL Injection (CreateRemoteThread) Example]\n");
+	wprintf(L"[Global DLL Injection (SetWindowsHookEx) Example]\n");
 
 	wchar_t* DllPath = argv[1];
 	unsigned ThreadId = 0;
