@@ -1,0 +1,4 @@
+LIBRARY
+EXPORTS
+    KeyboardProc = KeyboardProc
+    SetLoadThreadInfo = SetLoadThreadInfo
