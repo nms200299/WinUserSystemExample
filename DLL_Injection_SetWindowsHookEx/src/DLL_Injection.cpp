@@ -26,7 +26,7 @@ unsigned __stdcall InjectDll(void* param) {
 	// 키보드 훅 함수 주소를 구합니다. 
 
 	fnSetLoadThreadInfo SetInfo = (fnSetLoadThreadInfo)GetProcAddress(g_hDll, "SetLoadThreadInfo");
-	if (procAddr == NULL) {
+	if (SetInfo == NULL) {
 		wprintf(L"\t[-] GetProcAddress(SetLoadThreadInfo) Fail !\n");
 		FreeLibrary(g_hDll);
 		return 3;
@@ -34,7 +34,7 @@ unsigned __stdcall InjectDll(void* param) {
 	wprintf(L"\t[+] GetProcAddress(SetLoadThreadInfo) Success !\n");
 	// 로드한 PID, TID를 공유할 함수 주소를 구합니다.
 	SetInfo((int)GetCurrentProcessId(), (int)GetCurrentThreadId());
-	// PID, TID를 DLL로 넘깁니다.
+	// PID, TID를 DLL의 함수로 넘깁니다.
 
 	g_hHook = SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)procAddr, g_hDll, 0);
 	if (g_hHook == NULL) {
