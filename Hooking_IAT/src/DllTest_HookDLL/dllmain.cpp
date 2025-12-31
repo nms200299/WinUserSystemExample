@@ -52,7 +52,6 @@ int WINAPI MessageBoxA_Hook(
 	return IDNO;
 } // MessageBoxA 후킹
 
-
 BOOL IatHooking(LPCSTR pcszDllName, PROC pFnBefore, PROC pFnAfter) {
 	HMODULE hMod;
 	hMod = GetModuleHandle(NULL);
@@ -65,9 +64,9 @@ BOOL IatHooking(LPCSTR pcszDllName, PROC pFnBefore, PROC pFnAfter) {
 
 	DWORD dwRVA;
 #ifdef _WIN64
-	dwRVA = *((DWORD*)&pAddr[0x90]); // PE64
+	dwRVA = ((PIMAGE_NT_HEADERS64)pAddr)->OptionalHeader.DataDirectory[1].VirtualAddress; // PE64 Import Table
 #else
-	dwRVA = *((DWORD*)&pAddr[0x80]); // PE32
+	dwRVA = ((PIMAGE_NT_HEADERS32)pAddr)->OptionalHeader.DataDirectory[1].VirtualAddress; // PE32 Import Table
 #endif
 	// IMAGE_NT_HEADER에 명시된 IDT(IMAGE_IMPORT_DESCRIPTOR) 주소를 구합니다.
 
@@ -92,7 +91,8 @@ BOOL IatHooking(LPCSTR pcszDllName, PROC pFnBefore, PROC pFnAfter) {
 					DWORD dwVirProtect;
 					VirtualProtect((LPVOID)&pThunk->u1.Function, sizeof(LPVOID), PAGE_EXECUTE_READWRITE, &dwVirProtect);
 					// IAT는 Read-only 속성으로 로드되기에 Read/Write 속성으로 변경 (sizeof(LPVOID)로 x86/64 대응)
-					pThunk->u1.Function = (DWORD_PTR)pFnAfter;
+					InterlockedExchangePointer((PVOID volatile*)&pThunk->u1.Function, (PVOID)pFnAfter);// pThunk->u1.Function = (DWORD_PTR)pFnAfter;
+					// 멀티 스레드 환경을 고려해 원자적 연산으로 IAT를 수정한다.
 					VirtualProtect((LPVOID)&pThunk->u1.Function, sizeof(LPVOID), dwVirProtect, &dwVirProtect);
 					// 다시 Read-only 속성으로 원상 복구
 					return TRUE;
@@ -109,6 +109,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                      ){
     switch (ul_reason_for_call) {
 		case DLL_PROCESS_ATTACH: {
+			DisableThreadLibraryCalls(hModule);
 			pOrgMessageBoxW = GetProcAddress(GetModuleHandleA("USER32.dll"), "MessageBoxW");
 			IatHooking("USER32.dll", pOrgMessageBoxW, (PROC)MessageBoxW_Hook);
 			pOrgMessageBoxA = GetProcAddress(GetModuleHandleA("USER32.dll"), "MessageBoxA");
