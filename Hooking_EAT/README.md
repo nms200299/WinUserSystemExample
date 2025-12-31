@@ -4,10 +4,11 @@
 
 * 블로그 포스팅 :
 
-  * 
+  * https://blog.naver.com/nms200299/224129850433
 
 * 시연 영상 :
 
+https://github.com/user-attachments/assets/93f2333a-3916-4de2-98f6-549432e76fae
 
 * 테스트 결과 :
 
