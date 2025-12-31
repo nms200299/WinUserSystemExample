@@ -8,7 +8,7 @@
 
 * 시연 영상 :
 
-https://github.com/user-attachments/assets/93f2333a-3916-4de2-98f6-549432e76fae
+https://github.com/user-attachments/assets/e0928dbb-5804-4aa7-b2df-6c11648fb1fd
 
 * 테스트 결과 :
 
