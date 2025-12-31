@@ -7,4 +7,4 @@
 |DLL 인젝션|[CreateRemoteThread를 이용한 DLL 인젝션](https://github.com/nms200299/WinUserSystemExample/tree/main/DLL_Injection_CreateRemoteThread)|[Blog](https://blog.naver.com/nms200299/224091506940)|
 ||[SetWindowsHookEx를 이용한 Global DLL 인젝션](https://github.com/nms200299/WinUserSystemExample/tree/main/DLL_Injection_SetWindowsHookEx)|[Blog](https://blog.naver.com/nms200299/224107869569)|
 |후킹|[IAT Hooking을 이용한 API 후킹](https://github.com/nms200299/WinUserSystemExample/tree/main/Hooking_IAT)|[Blog](https://blog.naver.com/nms200299/224098620006)|
-||EIAT Hooking을 이용한 API 후킹](https://github.com/nms200299/WinUserSystemExample/tree/main/Hooking_EAT)|[Blog](https://blog.naver.com/nms200299/224129850433)|
+||[EAT Hooking을 이용한 API 후킹](https://github.com/nms200299/WinUserSystemExample/tree/main/Hooking_EAT)|[Blog](https://blog.naver.com/nms200299/224129850433)|
