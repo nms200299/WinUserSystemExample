@@ -54,11 +54,11 @@ int WINAPI MessageBoxA_Hook(
 } // MessageBoxA 후킹
 
 
-PBYTE x64CodeCave(PBYTE pLoadBase, PBYTE pMaxSearchRange, PBYTE pJmpStub) {
+PBYTE x64CodeCave(PBYTE pLoadBase, PBYTE pMaxSearchRange, PBYTE pJmpStub, DWORD dwJmpStubSize) {
 	BYTE FindPadCnt = 0;
 	BYTE FindStubCnt = 0;
 	for (; pLoadBase <= pMaxSearchRange; pLoadBase++) {
-		if ((FindPadCnt >= 12) || (FindStubCnt >= 12)) break;
+		if ((FindPadCnt >= dwJmpStubSize) || (FindStubCnt >= dwJmpStubSize)) break;
 		if ((*pLoadBase == 0x00) || (*pLoadBase == 0xCC)) {
 			// 0x00(패딩)과 0xCC(MSVC 디버깅용 패딩)을 CodeCave 영역으로 사용한다.
 			FindPadCnt++;
@@ -73,9 +73,9 @@ PBYTE x64CodeCave(PBYTE pLoadBase, PBYTE pMaxSearchRange, PBYTE pJmpStub) {
 			FindStubCnt = 0;
 		} // 이전에 설치한 StubCode를 찾으면 재활용
 	}
-	if ((FindPadCnt >= 12) && (FindStubCnt >= 12)) return NULL;
+	if ((FindPadCnt < dwJmpStubSize) && (FindStubCnt < dwJmpStubSize)) return NULL;
 	// 유효한 Code Cave를 확보하지 못한 경우 NULL 리턴한다.
-	pLoadBase = pLoadBase - 12;
+	pLoadBase = pLoadBase - dwJmpStubSize;
 	// 탐색을 위해 증가시킨 오프셋만큼 감소한다.
 	printf("\tCode Cave area found : %p...\n", pLoadBase);
 	return pLoadBase;
@@ -90,7 +90,6 @@ PBYTE x64VirtualAllocProbing(PBYTE pLoadBase, PBYTE pMinSearchRange, PBYTE pMaxS
 	if (pLoadBase == NULL) return NULL;
 	return pLoadBase;
 }
-
 
 PBYTE x64TrampolineSetup(PBYTE pLoadBase, PVOID pTargetAddress, DWORD dwSizeOfImg, DWORD* EatFuncAddr) {
 	BYTE JmpStub[12] = { 0x48, 0xB8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xFF, 0xE0 };
@@ -112,7 +111,7 @@ PBYTE x64TrampolineSetup(PBYTE pLoadBase, PVOID pTargetAddress, DWORD dwSizeOfIm
 		// 이미 EAT에 VirtualAllocProbing으로 할당된 메모리는 할당 해제 후, 같은 영역 재할당
 	}
 	else {
-		pLoadBase = x64CodeCave(pLoadBase, CaveMaxSearchRange, JmpStub);
+		pLoadBase = x64CodeCave(pLoadBase, CaveMaxSearchRange, JmpStub, sizeof(JmpStub));
 	}// CodeCave 방식으로 메모리 탐색
 
 	if (pLoadBase == NULL) {
@@ -132,6 +131,7 @@ PBYTE x64TrampolineSetup(PBYTE pLoadBase, PVOID pTargetAddress, DWORD dwSizeOfIm
 	// 메모리 가시성(Store)을 보장한다.
 	FlushInstructionCache(GetCurrentProcess(), pLoadBase, sizeof(JmpStub));
 	// 수정된 코드가 실행되도록 Instruction Cache를 무효화한다.
+
 	return pLoadBase;
 }
 
