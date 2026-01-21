@@ -43,6 +43,4 @@ https://github.com/user-attachments/assets/557ae6e1-c463-47cc-8acf-72eb841a7dba
 
 * O : 정상 동작
 * △ : 보안 기법(CFG, CET 등)으로 인해 제한적 또는 우회 필요
-* 
-
-  * : 구조적으로 미지원
+* - : 구조적으로 미지원
