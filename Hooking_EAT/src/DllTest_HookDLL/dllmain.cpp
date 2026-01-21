@@ -81,15 +81,22 @@ PBYTE x64CodeCave(PBYTE pLoadBase, PBYTE pMaxSearchRange, PBYTE pJmpStub, DWORD 
 	return pLoadBase;
 }
 
-PBYTE x64VirtualAllocProbing(PBYTE pLoadBase, PBYTE pMinSearchRange, PBYTE pMaxSearchRange, PBYTE pJmpStub, BYTE JmpStubSize) {
-	while ((pLoadBase == NULL) && (pMinSearchRange <= pMaxSearchRange)) {
-		pLoadBase = (PBYTE)VirtualAlloc(pMinSearchRange, JmpStubSize, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-		pMinSearchRange += JmpStubSize;
-	} // pMaxSearchRange 범위 안에서 JmpStubSize 할당 가능한 공간을 탐색한다.
-	printf("\tAllocate memory : %p...\n", pLoadBase);
-	if (pLoadBase == NULL) return NULL;
-	return pLoadBase;
+PBYTE VirtualAllocProbing(PBYTE pbBaseAddr, DWORD_PTR pbMaxSearchIdx, BYTE bAllocSize) {
+	PBYTE pbAllocAddr = NULL;
+	DWORD_PTR pbSearchAddr = (DWORD_PTR)pbBaseAddr;
+	// 포인터의 오버/언더플로는 컴파일러가 UB(Undefined Behavior)로 간주하기에 DWORD_PTR로 형변환하여 연산
+	DWORD_PTR pbSearchIdx = 0;
+	while ((pbAllocAddr == NULL) && (pbSearchIdx <= pbMaxSearchIdx)) {
+		pbSearchAddr += bAllocSize;
+		if (pbSearchAddr < (DWORD_PTR)pbBaseAddr) break; // 정방향 탐색에서 오버플로우 발생 시, 탈출
+		pbAllocAddr = (PBYTE)VirtualAlloc((PBYTE)pbSearchAddr, bAllocSize, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		pbSearchIdx += bAllocSize;
+	} // pbBaseAddr에서 정방향으로 pbMaxSearchIdx만큼 할당 가능 주소 탐색
+
+	printf("\t\tAllocate memory : %p...\n", pbAllocAddr);
+	return pbAllocAddr;
 }
+
 
 PBYTE x64TrampolineSetup(PBYTE pLoadBase, PVOID pTargetAddress, DWORD dwSizeOfImg, DWORD* EatFuncAddr) {
 	BYTE JmpStub[12] = { 0x48, 0xB8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xFF, 0xE0 };
@@ -102,22 +109,27 @@ PBYTE x64TrampolineSetup(PBYTE pLoadBase, PVOID pTargetAddress, DWORD dwSizeOfIm
 	// EAT에 사용될 CodeCave는 PE 파일에 정의된 SizeOfImage 안에서 탐색한다.
 	PBYTE AllocMaxSearchRange = pLoadBase + 0xFFFFFFFF;
 	// 메모리 할당 가능 공간을 탐색하기 위해서 RVA(DWORD) 범위 내에서 탐색한다.
-	// (EAT의 RVA(DWORD) 제약으로 인해 ImageBase 기준 ±4GB 이내 주소만 사용 가능)
+	// (EAT의 RVA(DWORD) 제약으로 인해 ImageBase 기준 +4GB 이내 주소만 사용 가능)
+
 
 	if (*EatFuncAddr >= dwSizeOfImg) {
 		VirtualFree(pLoadBase + (*EatFuncAddr), 0, MEM_RELEASE);
-		CaveMaxSearchRange = (PBYTE)EatFuncAddr;
-		pLoadBase = NULL;
+		CaveMaxSearchRange = pLoadBase + (*EatFuncAddr);
 		// 이미 EAT에 VirtualAllocProbing으로 할당된 메모리는 할당 해제 후, 같은 영역 재할당
 	}
-	else {
-		pLoadBase = x64CodeCave(pLoadBase, CaveMaxSearchRange, JmpStub, sizeof(JmpStub));
-	}// CodeCave 방식으로 메모리 탐색
 
-	if (pLoadBase == NULL) {
-		pLoadBase = x64VirtualAllocProbing(pLoadBase, CaveMaxSearchRange, AllocMaxSearchRange, JmpStub, sizeof(JmpStub));
+	PBYTE pAllocAddr = VirtualAllocProbing(CaveMaxSearchRange, 0xFFFFFFFF - dwSizeOfImg, sizeof(JmpStub)); // CFG Allow
+	//PBYTE pAllocAddr = x64CodeCave(pLoadBase, CaveMaxSearchRange, JmpStub, sizeof(JmpStub));
+	// AllocProbing 방식으로 메모리 탐색
+	if (pAllocAddr != NULL) {
+		pLoadBase = pAllocAddr;
+	}
+	else {
+		pLoadBase = x64CodeCave(pLoadBase, CaveMaxSearchRange, JmpStub, sizeof(JmpStub)); // CFG Disallow
+		//pLoadBase = VirtualAllocProbing(CaveMaxSearchRange, 0xFFFFFFFF - dwSizeOfImg, sizeof(JmpStub));
+		// CodeCave 방식으로 메모리 탐색
 		if (pLoadBase == NULL) return NULL;
-	}// RVA 표현 가능한 범위 안에서 가상 메모리 할당 루프돕니다.
+	}
 
 	DWORD flOldProtect;
 	VirtualProtect(pLoadBase, sizeof(JmpStub), PAGE_READWRITE, &flOldProtect);
@@ -134,6 +146,7 @@ PBYTE x64TrampolineSetup(PBYTE pLoadBase, PVOID pTargetAddress, DWORD dwSizeOfIm
 
 	return pLoadBase;
 }
+
 
 VOID x64TrampolineRemove(PBYTE pLoadBase, DWORD dwSizeOfImg, DWORD* EatFuncAddrRVA) {
 	PBYTE EatFuncAddrVA = pLoadBase + (*EatFuncAddrRVA);
