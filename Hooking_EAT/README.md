@@ -31,3 +31,9 @@ https://github.com/user-attachments/assets/e0928dbb-5804-4aa7-b2df-6c11648fb1fd
 | Windows 10 | x86 | O | - | - |
 || x64 (WoW64) | O | △ (CFG) | O |
 | Windows 11 | x64 (WoW64) | O | △ (CFG) | O |
+
+#### 표기 기준
+
+* O : 정상 동작
+* △ : 보안 기법(CFG)으로 인해 제한적 또는 우회 필요
+* \- : 구조적으로 미지원
