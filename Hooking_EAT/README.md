@@ -15,9 +15,9 @@ https://github.com/user-attachments/assets/e0928dbb-5804-4aa7-b2df-6c11648fb1fd
 
 * x64 EAT 후킹
 
- * CodeCave 할당 기법
+  * CodeCave 할당 기법
 
- * Allocation Probing 할당 기법
+  * Allocation Probing 할당 기법
 
 
 ### 테스트 결과 :
