@@ -7,13 +7,7 @@
 
 ### 시연 영상 :
 
-
-
 https://github.com/user-attachments/assets/557ae6e1-c463-47cc-8acf-72eb841a7dba
-
-
-
-
 
 ### 구현 내용 :
 
@@ -29,18 +23,18 @@ https://github.com/user-attachments/assets/557ae6e1-c463-47cc-8acf-72eb841a7dba
 
 ### 테스트 결과 :
 
-|OS 종류|OS 아키텍처|EIP-relative (5byte)|HotPatch (7byte)|RET Base (14byte)|Register Base (12byte)|RIP-relative (14byte)|
+|OS 종류|OS 아키텍처| x86 EIP-relative (5byte)|x86 HotPatch (7byte)|x64 RET Base (14byte)|x64 Register Base (12byte)|x64 RIP-relative (14byte)|
 |-|-|-|-|-|-|-|
-|**Windows 7**|x86|O|O|-|-|-|
+|Windows 7|x86|O|O|-|-|-|
 ||x64 (WoW64)|O|O|O|O|O|
-|**Windows 8.1**<br>(Update 3)|x86|O|△ (CFG, U3)|-|-|-|
+|Windows 8.1<br>(Update 3)|x86|O|△ (CFG, U3)|-|-|-|
 ||x64 (WoW64)|O|△ (CFG, U3)|O|O|O|
-|**Windows 10**|x86|O|△ (CFG)|-|-|-|
+|Windows 10|x86|O|△ (CFG)|-|-|-|
 ||x64 (WoW64)|O|△ (CFG)|△ (CET, 유추)|O|O|
-|**Windows 11**|x64 (WoW64)|O|△ (CFG)|△ (CET)|O|O|
+|Windows 11|x64 (WoW64)|O|△ (CFG)|△ (CET)|O|O|
 
 #### 표기 기준
 
 * O : 정상 동작
 * △ : 보안 기법(CFG, CET 등)으로 인해 제한적 또는 우회 필요
-* - : 구조적으로 미지원
+* \- : 구조적으로 미지원
