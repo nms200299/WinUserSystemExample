@@ -123,7 +123,8 @@ PBYTE x64TrampolineSetup(PBYTE pLoadBase, PVOID pTargetAddress, DWORD dwSizeOfIm
 		pLoadBase = NULL;
 		// 이미 EAT에 VirtualAllocProbing으로 할당된 메모리는 할당 해제 후, 같은 영역 재할당
 	} else {
-		pLoadBase = x64CodeCave(pLoadBase, CaveMaxSearchRange, JmpStub, sizeof(JmpStub));
+		// pLoadBase = x64CodeCave(pLoadBase, CaveMaxSearchRange, JmpStub, sizeof(JmpStub));
+		pLoadBase = NULL;
 	}// CodeCave 방식으로 메모리 탐색
 
 	if (pLoadBase == NULL) {
