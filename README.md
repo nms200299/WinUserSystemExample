@@ -12,3 +12,4 @@
 ||[Debugger-Based API 후킹](https://github.com/nms200299/WinUserSystemExample/tree/main/Hooking/Debugging_Attach_Hooking)|[Blog](https://blog.naver.com/nms200299/224362158122)|
 |핸들 공유|[상속을 통한 커널 오브젝트 핸들 공유](https://github.com/nms200299/WinUserSystemExample/tree/main/Handle_Sharing/Handle_Inheritance)|[Blog](https://blog.naver.com/nms200299/224372163001)|
 ||[복제를 통한 커널 오브젝트 핸들 공유](https://github.com/nms200299/WinUserSystemExample/blob/main/Handle_Sharing/Duplicating_Handles)|[Blog](https://blog.naver.com/nms200299/224372366042)|
+|셸 익스텐션|[Context Menu 등록 DLL](https://github.com/nms200299/WinUserSystemExample/tree/main/ShellExtension/ContextMenu)|[Blog](https://blog.naver.com/nms200299/224420399385)|
