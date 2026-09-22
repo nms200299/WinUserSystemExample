@@ -1,0 +1,35 @@
+HKCR
+{
+    NoRemove CLSID
+    {
+        ForceRemove {e6a63ec6-47f3-4245-947b-8fca7d42b358} = s 'MyContextMenu Class'
+        {
+            InprocServer32 = s '%MODULE%'
+            {
+                val ThreadingModel = s 'Apartment'
+            }
+        }
+    }
+
+    NoRemove *
+    {
+        NoRemove ShellEx
+        {
+            NoRemove ContextMenuHandlers
+            {
+                ForceRemove SimpleShlExt = s '{e6a63ec6-47f3-4245-947b-8fca7d42b358}'
+            }
+        }
+    }
+
+    NoRemove Directory
+    {
+        NoRemove ShellEx
+        {
+            NoRemove ContextMenuHandlers
+            {
+                ForceRemove SimpleShlExt = s '{e6a63ec6-47f3-4245-947b-8fca7d42b358}'
+            }
+        }
+    }
+}

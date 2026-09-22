@@ -1,0 +1,36 @@
+﻿// ContextMenu.idl: ContextMenu의 IDL 소스
+//
+
+// 이 파일은 MIDL 도구에 의해 처리되어
+// 형식 라이브러리(ContextMenu.tlb) 및 마샬링 코드를 생성합니다.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+    uuid(e6a63ec6-47f3-4245-947b-8fca7d42b357),
+    version(1.0)
+]
+library ContextMenuLib
+{
+    importlib("stdole2.tlb");
+
+    [
+        uuid(e6a63ec6-47f3-4245-947b-8fca7d42b359),
+        object,
+        dual,
+        pointer_default(unique)
+    ]
+    interface IMyContextMenu : IDispatch
+    {
+    };
+
+    [
+        uuid(e6a63ec6-47f3-4245-947b-8fca7d42b358),
+        helpstring("MyContextMenu Class")
+    ]
+    coclass MyContextMenu
+    {
+        [default] interface IMyContextMenu;
+    };
+};
