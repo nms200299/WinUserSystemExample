@@ -1,4 +1,4 @@
-# Detours Detours 라이브러리를 이용한 API 후킹
+# Detours 라이브러리를 이용한 API 후킹
 
 * 작성자 : 2N(nms200299)
 * 블로그 포스팅 (개념 정리) :
